@@ -83,21 +83,12 @@ public class Server07_00 {
 				System.out.println( time03 - time02);
 				System.out.println( time03 - time01);
 				
-				
-				
-				//waver.serveData( sendData.getBytes() );
-				//waver.receiveData();
-				
-				
-				
 				try {
 					Thread.sleep(1000);
 				} catch (Exception e) {
 					// TODO: handle exception
 				}
 				System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-				waver.close();
-				socket.close();
 			}
 
 
