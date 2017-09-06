@@ -1,4 +1,4 @@
-package v07;
+package v08;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetAddress;
@@ -15,7 +15,7 @@ import java.util.Date;
  * @author insung
  *
  */
-public class Server07_00 {
+public class Server08_00 {
 
 	public static void main(String args[]) {
 		ServerSocket serverSocket = null;
@@ -46,11 +46,18 @@ public class Server07_00 {
 				if("start".equals( dataRead)){
 					break;
 				}
+				
+				Thread.sleep(100);	//cpu 과점유 방지
 			}
 			
 			System.out.println("======================START======================");
 			
-			for (int i = 0; i < 30; i++) {
+			for (int i = 0; i < 10; i++) {
+				
+				
+				// 소켓으로 부터 받은 데이터를 출력한다.
+				String dataRead = waver.receiveData();
+				System.out.println("서버로부터 받은 메세지 : " + dataRead );
 				
 				
 				
@@ -64,24 +71,14 @@ public class Server07_00 {
 				System.out.println("서버로 전송 할 메시지 : " + sendData );
 	
 				// 서버로 데이터를 전송한다.				
-				long time01 = System.currentTimeMillis();
 				waver.serveData( sendByteData );
-				long time02 = System.currentTimeMillis();
 				
 				//System.out.println("send finish");
 	
 				
-				// 소켓으로 부터 받은 데이터를 출력한다.
-				String dataRead = waver.receiveData();
-				long time03 = System.currentTimeMillis();				
-				System.out.println("서버로부터 받은 메세지 : " + dataRead );
 				
 				
 				
-				
-				System.out.println( time02 - time01);
-				System.out.println( time03 - time02);
-				System.out.println( time03 - time01);
 				
 				try {
 					Thread.sleep(1000);
@@ -89,7 +86,7 @@ public class Server07_00 {
 					// TODO: handle exception
 				}
 				System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-			}
+			}//end for
 
 
 			

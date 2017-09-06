@@ -1,4 +1,4 @@
-package v07;
+package v08;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -69,19 +69,32 @@ public class DataStreamUtil2 {
 	}
 	
 	
-	public void sync() throws Exception {
+	public void sync() throws SocketException, IOException {
 		//new OpenStream( this, 1 ).run();
 		//new OpenStream( this, 0 ).run();
 		
 		
-		if( disFw.available() != 0 ){
-			receiveAndServeData( disFw, dosBw , 8);
+		if( disFw.available() != 0 && socketFw.isConnected() ){
+			receiveAndServeData( disFw, dosBw , "FB");
+		}else{
+			System.out.println("disFw_dosBw do nothing");
 		}
 		
-		if( disBw.available() != 0 ){
-			receiveAndServeData( disBw, dosFw , 7);
+		if( disBw.available() != 0 && socketBw.isConnected() ){
+			receiveAndServeData( disBw, dosFw , "BF");
+		}else{
+			System.out.println("disBw_dosFw do nothing");
 		}
 		
+		if(socketFw.isClosed()){
+			System.out.println("~R~FB !!!!!!!!!!!!!!!!" );
+			throw new SocketException("~R~FB");
+		}
+		
+		if( socketBw.isClosed() ){
+			System.out.println("~R~BF !!!!!!!!!!!!!!!!" );
+			throw new SocketException("~R~BF");
+		}
 		//receiveAndServeData( disBw, dosFw , 8);
 		//receiveAndServeData( disFw, dosBw , 8);		
 	}
@@ -89,15 +102,15 @@ public class DataStreamUtil2 {
 	
 	
 	
-	public void syncBF(int mode) throws Exception {
-		receiveAndServeData( disBw, dosFw, mode );	
+	public void syncBF() throws Exception {
+		receiveAndServeData( disBw, dosFw, "BF" );	
 	}
 	
-	public void syncFB(int mode) throws Exception {
-		receiveAndServeData( disFw, dosBw, mode );		
+	public void syncFB() throws Exception {
+		receiveAndServeData( disFw, dosBw, "FB" );		
 	}
 	
-	public void receiveAndServeData( DataInputStream dis, DataOutputStream dos, int mode ) throws SocketException {		
+	public void receiveAndServeData( DataInputStream dis, DataOutputStream dos, String mode ) throws SocketException {		
 		if( dis == null ){
 			System.out.println("DataInputStream is null");
 		}
@@ -116,8 +129,10 @@ public class DataStreamUtil2 {
 			
 		}catch( Exception e ){
 			System.out.println("exception 1");
-			throw new SocketException("~A~");
+			throw new SocketException("~R~"+mode);
 		}
+		
+		
 		
 		if( totalLength <= 0 ) return;
 		
@@ -127,22 +142,30 @@ public class DataStreamUtil2 {
 			dis.readFully(buf);
 		}catch( Exception e ){
 			System.out.println("exception 2");
-			throw new SocketException("~A~");
+			throw new SocketException("~R~"+mode);
 		}
+		System.out.println(mode + "read end " + totalLength);
 		
+		
+		
+		System.out.println(mode + "write start " + totalLength);
 		try {
 			dos.writeInt( totalLength );
 			dos.write(buf);
 			dos.flush();
 		} catch (Exception e) {
 			System.out.println("exception 3");
-			throw new SocketException("~B~");
+			throw new SocketException("~W~"+mode);
 		}
-			
-					
 		
-		System.out.println(mode + "read end " + totalLength);
+		System.out.println(mode + "write end " + totalLength);
 	}
+	
+	
+	
+	
+	
+	
 	
 	public class OpenStream implements Runnable{
 		DataStreamUtil2 util;
@@ -159,8 +182,8 @@ public class DataStreamUtil2 {
 		public void run() {
 			try{
 				switch( mode ){
-				case 0 : util.syncBF( mode ); break;
-				case 1 : util.syncFB( mode ); break;
+				case 0 : util.syncBF(); break;
+				case 1 : util.syncFB(); break;
 				default : break;
 				}
 			
